@@ -3,11 +3,13 @@
   by adding `<script src="script.js">` just before your closing `</body>` tag
 */
 
-async function mainEvent() { // the async keyword means we can make API requests
-  const form = document.querySelector('.main_form'); // This class name needs to be set on your form before you can listen for an event on it
-  form.addEventListener('submit', async (submitEvent) => { // async has to be declared on every function that needs to "await" something
+async function mainEvent() {
+  // the async keyword means we can make API requests
+  const form = document.querySelector(".main_form"); // This class name needs to be set on your form before you can listen for an event on it
+  form.addEventListener("submit", async (submitEvent) => {
+    // async has to be declared on every function that needs to "await" something
     submitEvent.preventDefault(); // This prevents your page from going to http://localhost:3000/api even if your form still has an action set on it
-    console.log('form submission'); // this is substituting for a "breakpoint"
+    console.log("form submission"); // this is substituting for a "breakpoint"
 
     /*
       ## GET requests and Javascript
@@ -35,7 +37,9 @@ async function mainEvent() { // the async keyword means we can make API requests
       // It does not include any of your form values, though
     */
 
-    const results = await fetch('/api/foodServicePG');
+    const results = await fetch(
+      `/api/foodServicePG?${new URLSearchParams(formProps)}`
+    );
     /*
    ## Get request with query parameters
 
@@ -55,6 +59,27 @@ async function mainEvent() { // the async keyword means we can make API requests
     console.table(arrayFromJson.data); // this is called "dot notation"
     // arrayFromJson.data - we're accessing a key called 'data' on the returned object
     // it initially contains all 1,000 records from your request
+
+    const rightBoxDiv = document.getElementById("right_section_box");
+    const validCities = [ 'Berwyn Heights', 'Bladensburg', 'Bowie', 'Brentwood', 'Capitol Heights', 'Cheverly', 'College Park', 'Colmar Manor', 'Cottage City', 'District Heights', 'Eagle Harbor', 'Edmonston', 'Fairmount Heights', 'Forest Heights', 'Glenarden', 'Greenbelt', 'Hyattsville', 'Landover Hills', 'Laurel', 'Morningside', 'Mount Rainier',' New Carrollton',' North Brentwood', 'Riverdale Park', 'Seat Pleasant', 'University Park', 'Upper Marlboro']
+
+    let result = "";
+    arrayFromJson.data.forEach(res => {
+        // display the restaurant only if it is located in PG county
+        if(res.state === 'MD' && validCities.find(city => city.toLowerCase() === res.city.toLowerCase())) result += (`<li>Name: ${res.name}. Location: ${res.address_line_1}</li>`); 
+    });
+
+    rightBoxDiv.setHTML(`
+    <div>
+        <h2>A list of restaurants result matching for your search term, ${new URLSearchParams(
+          formProps
+        ).get("resto")}:</h2>
+        <div>
+            <ul>
+                ${result}
+            </ul>
+        </div>
+    </div>`);
   });
 }
 
@@ -63,4 +88,4 @@ async function mainEvent() { // the async keyword means we can make API requests
   The use of the async keyword means we can "await" events before continuing in our scripts
   In this case, we load some data when the form has submitted
 */
-document.addEventListener('DOMContentLoaded', async () => mainEvent()); // the async keyword means we can make API requests
+document.addEventListener("DOMContentLoaded", async () => mainEvent()); // the async keyword means we can make API requests
